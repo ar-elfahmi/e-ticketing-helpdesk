@@ -48,9 +48,9 @@ app.*.map.json
 /web
 /windows
 
-task.md 
-implementation_plan_login.md
-implementation_plan.md
-Laporan Mobile Teori.md
-AGENT.md
+/task.md
+/implementation_plan_login.md
+/implementation_plan.md
+/Laporan Mobile Teori.md
+/AGENT.md
 
