@@ -188,15 +188,8 @@ class _LoginPageState extends State<LoginPage> {
                                   alignment: Alignment.centerRight,
                                   child: TextButton(
                                     onPressed: () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            AppStrings
-                                                .forgotPasswordPlaceholder,
-                                          ),
-                                        ),
+                                      Navigator.of(context).pushNamed(
+                                        AppRoutes.forgotPassword,
                                       );
                                     },
                                     child: const Text('Lupa Password?'),

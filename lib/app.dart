@@ -5,6 +5,7 @@ import 'core/constants/app_strings.dart';
 import 'core/services/navigation_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
+import 'features/auth/presentation/pages/forgot_password_page.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'features/auth/presentation/pages/splash_page.dart';
@@ -35,6 +36,7 @@ class App extends StatelessWidget {
             AppRoutes.splash: (_) => const SplashPage(),
             AppRoutes.login: (_) => const LoginPage(),
             AppRoutes.register: (_) => const RegisterPage(),
+            AppRoutes.forgotPassword: (_) => const ForgotPasswordPage(),
             AppRoutes.shell: (_) => const AppShellPage(),
             AppRoutes.dashboard: (_) => const DashboardPage(),
             AppRoutes.ticketList: (_) => const TicketListPage(),

@@ -13,4 +13,6 @@ abstract class AuthRepository {
   });
 
   Future<UserModel?> getCurrentUser();
+
+  Future<bool> resetPassword(String emailOrUsername);
 }

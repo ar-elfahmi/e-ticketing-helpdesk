@@ -109,6 +109,19 @@ class DummyAuthRepository implements AuthRepository {
     return _currentUser;
   }
 
+  @override
+  Future<bool> resetPassword(String emailOrUsername) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    final exists = _users.any(
+      (item) =>
+          item.email.toLowerCase() == emailOrUsername.toLowerCase() ||
+          item.username.toLowerCase() == emailOrUsername.toLowerCase(),
+    );
+
+    return exists;
+  }
+
   UserModel? findUserById(String userId) {
     return _users.where((item) => item.id == userId).firstOrNull;
   }

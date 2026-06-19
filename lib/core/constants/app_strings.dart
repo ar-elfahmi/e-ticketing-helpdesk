@@ -4,8 +4,15 @@ class AppStrings {
   static const String appName = 'E-Ticketing Helpdesk';
   static const String login = 'Masuk';
   static const String register = 'Daftar';
-  static const String forgotPasswordPlaceholder =
-      'Fitur reset password akan segera tersedia.';
+  static const String forgotPassword = 'Lupa Password';
+  static const String forgotPasswordHint =
+      'Masukkan email atau username untuk mereset password.';
+  static const String forgotPasswordSuccess =
+      'Instruksi reset password telah dikirim ke email Anda.';
+  static const String forgotPasswordNotFound =
+      'Email atau username tidak ditemukan.';
+  static const String resetPassword = 'Reset Password';
+  static const String sendResetLink = 'Kirim Tautan Reset';
 }
 
 class AppRoutes {
@@ -14,6 +21,7 @@ class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
   static const String register = '/register';
+  static const String forgotPassword = '/forgot-password';
   static const String shell = '/shell';
   static const String dashboard = '/dashboard';
   static const String ticketList = '/tickets';
