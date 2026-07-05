@@ -270,7 +270,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                                       .toList(),
                                   onChanged: _adminUpdateStatus,
                                 ),
-                              if (user?.role == UserRole.admin && ticket.status == TicketStatus.open)
+if (user?.role == UserRole.admin && ticket.status == TicketStatus.open)
                                 const SizedBox(height: 10),
                               if (user?.role == UserRole.admin && ticket.status == TicketStatus.open)
                                 OutlinedButton.icon(
@@ -278,13 +278,33 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                                   icon: const Icon(Icons.check_circle_outline),
                                   label: const Text('Terima Tiket'),
                                 ),
-                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.assign)
+                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.open)
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFFFF3E0),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Tiket perlu di accept admin terlebih dahulu',
+                                          style: const TextStyle(color: Color(0xFFBF360C)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.assign && user?.id != ticket.assigneeId)
                                 const SizedBox(height: 10),
-                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.assign)
+                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.assign && user?.id != ticket.assigneeId)
                                 OutlinedButton.icon(
                                   onPressed: _helpdeskAccept,
                                   icon: const Icon(Icons.assignment_turned_in_outlined),
-                                  label: const Text('Terima & Kerjakan'),
+                                  label: const Text('Kerjakan'),
                                 ),
                               if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.inProgress)
                                 const SizedBox(height: 10),
