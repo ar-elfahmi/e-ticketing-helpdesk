@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-enum TicketStatus { open, inProgress, closed }
+enum TicketStatus { open, assign, inProgress, closed }
 
 enum TicketPriority { low, medium, high, critical }
 
@@ -9,6 +9,8 @@ extension TicketStatusX on TicketStatus {
     switch (this) {
       case TicketStatus.open:
         return 'open';
+      case TicketStatus.assign:
+        return 'assign';
       case TicketStatus.inProgress:
         return 'inProgress';
       case TicketStatus.closed:
@@ -20,6 +22,8 @@ extension TicketStatusX on TicketStatus {
     switch (this) {
       case TicketStatus.open:
         return 'Open';
+      case TicketStatus.assign:
+        return 'Assign';
       case TicketStatus.inProgress:
         return 'In Progress';
       case TicketStatus.closed:
@@ -29,6 +33,8 @@ extension TicketStatusX on TicketStatus {
 
   static TicketStatus fromString(String value) {
     switch (value.toLowerCase()) {
+      case 'assign':
+        return TicketStatus.assign;
       case 'inprogress':
       case 'in_progress':
       case 'in progress':
@@ -212,16 +218,20 @@ class TicketModel {
   factory TicketModel.fromMap(Map<String, dynamic> map) {
     return TicketModel(
       id: map['id'] as String,
-      ticketNumber: map['ticketNumber'] as String,
+      ticketNumber: (map['ticket_number'] ?? map['ticketNumber']) as String,
       title: map['title'] as String,
       description: map['description'] as String,
       category: map['category'] as String,
       priority: TicketPriorityX.fromString(map['priority'] as String),
       status: TicketStatusX.fromString(map['status'] as String),
-      createdAt: DateTime.parse(map['createdAt'] as String),
-      updatedAt: DateTime.parse(map['updatedAt'] as String),
-      reporterId: map['reporterId'] as String,
-      assigneeId: map['assigneeId'] as String?,
+      createdAt: DateTime.parse(
+        (map['created_at'] ?? map['createdAt']) as String,
+      ),
+      updatedAt: DateTime.parse(
+        (map['updated_at'] ?? map['updatedAt']) as String,
+      ),
+      reporterId: (map['reporter_id'] ?? map['reporterId']) as String,
+      assigneeId: (map['assignee_id'] ?? map['assigneeId']) as String?,
       attachments: List<String>.from(
         map['attachments'] as List<dynamic>? ?? [],
       ),

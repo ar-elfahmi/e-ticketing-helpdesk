@@ -44,8 +44,8 @@ class AuthProvider extends ChangeNotifier {
 
       _currentUser = user;
       return true;
-    } catch (_) {
-      _errorMessage = 'Terjadi kesalahan saat login.';
+    } catch (e) {
+      _errorMessage = 'Terjadi kesalahan: $e';
       return false;
     } finally {
       _setLoading(false);

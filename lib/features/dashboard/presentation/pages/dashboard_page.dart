@@ -92,8 +92,11 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       floatingActionButton: authUser?.role == UserRole.user
           ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.of(context).pushNamed(AppRoutes.createTicket);
+              onPressed: () async {
+                await Navigator.of(context).pushNamed(AppRoutes.createTicket);
+                if (mounted) {
+                  _fetchData();
+                }
               },
               label: const Text('Buat Tiket Baru'),
               icon: const Icon(Icons.add),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 
@@ -121,11 +122,13 @@ class TicketProvider extends ChangeNotifier {
     required String ticketId,
     required TicketStatus status,
     required String updatedBy,
+    String? note,
   }) async {
     final updated = await _ticketRepository.updateStatus(
       ticketId: ticketId,
       status: status,
       updatedBy: updatedBy,
+      note: note,
     );
 
     if (updated == null) {
@@ -210,6 +213,19 @@ class TicketProvider extends ChangeNotifier {
       return;
     }
     _tickets[index] = ticket;
+  }
+
+  String? _uploadError;
+  String? get uploadError => _uploadError;
+
+  Future<String?> uploadAttachment(Uint8List bytes, String fileName) async {
+    try {
+      _uploadError = null;
+      return await _ticketRepository.uploadAttachment(bytes, fileName);
+    } catch (e) {
+      _uploadError = 'Gagal upload $fileName: $e';
+      return null;
+    }
   }
 
   @override

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(py --version)",
+      "Bash(pip3 install *)",
+      "Bash(/c/laragon/bin/python/python-3.13/python.exe *)"
+    ]
+  }
+}

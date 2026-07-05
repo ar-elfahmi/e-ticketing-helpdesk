@@ -49,11 +49,13 @@ class CommentModel {
   factory CommentModel.fromMap(Map<String, dynamic> map) {
     return CommentModel(
       id: map['id'] as String,
-      ticketId: map['ticketId'] as String,
-      userId: map['userId'] as String,
-      userName: map['userName'] as String,
+      ticketId: (map['ticket_id'] ?? map['ticketId']) as String,
+      userId: (map['user_id'] ?? map['userId']) as String,
+      userName: (map['user_name'] ?? map['userName']) as String,
       content: map['content'] as String,
-      createdAt: DateTime.parse(map['createdAt'] as String),
+      createdAt: DateTime.parse(
+        (map['created_at'] ?? map['createdAt']) as String,
+      ),
     );
   }
 

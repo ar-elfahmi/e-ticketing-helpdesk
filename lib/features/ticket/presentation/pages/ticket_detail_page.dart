@@ -56,15 +56,23 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
     _commentController.clear();
   }
 
-  Future<void> _updateStatus(TicketStatus? status) async {
-    if (status == null) {
-      return;
-    }
+  Future<void> _adminAccept() async {
+    final user = context.read<AuthProvider>().currentUser;
+    if (user == null) return;
+
+    await context.read<TicketProvider>().updateStatus(
+      ticketId: widget.ticketId,
+      status: TicketStatus.assign,
+      updatedBy: user.name,
+      note: 'Tiket diterima oleh admin',
+    );
+  }
+
+  Future<void> _adminUpdateStatus(TicketStatus? status) async {
+    if (status == null) return;
 
     final user = context.read<AuthProvider>().currentUser;
-    if (user == null) {
-      return;
-    }
+    if (user == null) return;
 
     await context.read<TicketProvider>().updateStatus(
       ticketId: widget.ticketId,
@@ -73,45 +81,33 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
     );
   }
 
-  Future<void> _assignTicket() async {
-    final selectedAssignee = await showModalBottomSheet<String>(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: const Text('Assign ke Nadia Helpdesk'),
-                onTap: () => Navigator.of(context).pop('h1'),
-              ),
-              ListTile(
-                title: const Text('Assign ke Raka Admin'),
-                onTap: () => Navigator.of(context).pop('a1'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    if (selectedAssignee == null) {
-      return;
-    }
-
+  Future<void> _helpdeskAccept() async {
     final user = context.read<AuthProvider>().currentUser;
-    if (user == null) {
-      return;
-    }
+    if (user == null) return;
 
     await context.read<TicketProvider>().assignTicket(
       ticketId: widget.ticketId,
-      assigneeId: selectedAssignee,
+      assigneeId: user.id,
       updatedBy: user.name,
+    );
+
+    await context.read<TicketProvider>().updateStatus(
+      ticketId: widget.ticketId,
+      status: TicketStatus.inProgress,
+      updatedBy: user.name,
+      note: 'Dikerjakan oleh helpdesk',
+    );
+  }
+
+  Future<void> _helpdeskFinish() async {
+    final user = context.read<AuthProvider>().currentUser;
+    if (user == null) return;
+
+    await context.read<TicketProvider>().updateStatus(
+      ticketId: widget.ticketId,
+      status: TicketStatus.closed,
+      updatedBy: user.name,
+      note: 'Tiket selesai dikerjakan',
     );
   }
 
@@ -166,20 +162,83 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                           if (ticket.attachments.isNotEmpty) ...[
                             const SizedBox(height: 10),
                             const Text('Lampiran:'),
-                            const SizedBox(height: 4),
-                            ...ticket.attachments.map(
-                              (item) => Row(
-                                children: [
-                                  const Icon(Icons.attach_file, size: 16),
-                                  Expanded(
-                                    child: Text(
-                                      item,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: ticket.attachments.map((url) {
+                                final fileName = url.split('/').last.toLowerCase();
+                                final isImage = fileName.endsWith('.jpg') ||
+                                    fileName.endsWith('.jpeg') ||
+                                    fileName.endsWith('.png') ||
+                                    fileName.endsWith('.gif') ||
+                                    fileName.endsWith('.webp');
+                                if (isImage) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          fullscreenDialog: true,
+                                          builder: (_) => Scaffold(
+                                            appBar: AppBar(),
+                                            body: Center(
+                                              child: InteractiveViewer(
+                                                child: Image.network(
+                                                  url,
+                                                  fit: BoxFit.contain,
+                                                  errorBuilder: (_, __, ___) =>
+                                                      const Center(
+                                                    child: Icon(
+                                                      Icons.broken_image_outlined,
+                                                      size: 48,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.network(
+                                        url,
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            Container(
+                                          width: 100,
+                                          height: 100,
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerHighest,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: const Icon(
+                                            Icons.broken_image_outlined,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  );
+                                }
+                                return Row(
+                                  children: [
+                                    const Icon(Icons.attach_file, size: 16),
+                                    Expanded(
+                                      child: Text(
+                                        fileName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
                             ),
                           ],
                         ],
@@ -187,41 +246,58 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  if (isStaff)
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Aksi Helpdesk/Admin'),
-                            const SizedBox(height: 10),
-                            DropdownButtonFormField<TicketStatus>(
-                              key: ValueKey(ticket.status),
-                              initialValue: ticket.status,
-                              decoration: const InputDecoration(
-                                labelText: 'Ubah Status',
-                              ),
-                              items: TicketStatus.values
-                                  .map(
-                                    (status) => DropdownMenuItem<TicketStatus>(
-                                      value: status,
-                                      child: Text(status.label),
-                                    ),
-                                  )
-                                  .toList(),
-                              onChanged: _updateStatus,
-                            ),
-                            const SizedBox(height: 10),
-                            OutlinedButton.icon(
-                              onPressed: _assignTicket,
-                              icon: const Icon(Icons.assignment_ind_outlined),
-                              label: const Text('Assign ke...'),
-                            ),
-                          ],
+                    if (isStaff)
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Aksi'),
+                              const SizedBox(height: 10),
+                              if (user?.role == UserRole.admin)
+                                DropdownButtonFormField<TicketStatus>(
+                                  decoration: const InputDecoration(
+                                    labelText: 'Ubah Status (Admin)',
+                                  ),
+                                  items: TicketStatus.values
+                                      .map(
+                                        (status) => DropdownMenuItem<TicketStatus>(
+                                          value: status,
+                                          child: Text(status.label),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: _adminUpdateStatus,
+                                ),
+                              if (user?.role == UserRole.admin && ticket.status == TicketStatus.open)
+                                const SizedBox(height: 10),
+                              if (user?.role == UserRole.admin && ticket.status == TicketStatus.open)
+                                OutlinedButton.icon(
+                                  onPressed: _adminAccept,
+                                  icon: const Icon(Icons.check_circle_outline),
+                                  label: const Text('Terima Tiket'),
+                                ),
+                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.assign)
+                                const SizedBox(height: 10),
+                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.assign)
+                                OutlinedButton.icon(
+                                  onPressed: _helpdeskAccept,
+                                  icon: const Icon(Icons.assignment_turned_in_outlined),
+                                  label: const Text('Terima & Kerjakan'),
+                                ),
+                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.inProgress)
+                                const SizedBox(height: 10),
+                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.inProgress)
+                                OutlinedButton.icon(
+                                  onPressed: _helpdeskFinish,
+                                  icon: const Icon(Icons.check_circle_outline),
+                                  label: const Text('Selesaikan Tiket'),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
                   const SizedBox(height: 12),
                   Text(
                     'Timeline Status',

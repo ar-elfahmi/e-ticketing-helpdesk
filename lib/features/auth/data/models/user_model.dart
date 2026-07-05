@@ -90,7 +90,7 @@ class UserModel {
       email: map['email'] as String,
       username: map['username'] as String,
       role: UserRoleX.fromString(map['role'] as String),
-      avatarUrl: map['avatarUrl'] as String?,
+      avatarUrl: (map['avatar_url'] ?? map['avatarUrl']) as String?,
     );
   }
 

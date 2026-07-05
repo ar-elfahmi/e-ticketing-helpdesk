@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../models/comment_model.dart';
 import '../models/ticket_model.dart';
 
@@ -42,4 +44,6 @@ abstract class TicketRepository {
   });
 
   Future<List<CommentModel>> getComments(String ticketId);
+
+  Future<String> uploadAttachment(Uint8List bytes, String fileName);
 }

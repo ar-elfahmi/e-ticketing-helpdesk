@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:typed_data';
 
 import '../models/comment_model.dart';
 import '../models/ticket_model.dart';
@@ -395,5 +396,10 @@ class DummyTicketRepository implements TicketRepository {
     final sorted = [...comments]
       ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
     return sorted;
+  }
+
+  @override
+  Future<String> uploadAttachment(Uint8List bytes, String fileName) async {
+    return 'https://dummy.storage.example/$fileName';
   }
 }

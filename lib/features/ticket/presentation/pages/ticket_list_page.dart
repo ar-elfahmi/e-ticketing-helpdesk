@@ -75,8 +75,15 @@ class _TicketListPageState extends State<TicketListPage> {
       appBar: AppBar(title: const Text('Daftar Tiket')),
       floatingActionButton: authUser?.role == UserRole.user
           ? FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(AppRoutes.createTicket);
+              onPressed: () async {
+                await Navigator.of(context)
+                    .pushNamed(AppRoutes.createTicket);
+                if (mounted) {
+                  ticketProvider.fetchTickets(
+                    refresh: true,
+                    reporterId: _getReporterId(),
+                  );
+                }
               },
               child: const Icon(Icons.add),
             )
@@ -100,6 +107,7 @@ class _TicketListPageState extends State<TicketListPage> {
               children: [
                 _buildFilterChip(context, null, 'Semua'),
                 _buildFilterChip(context, TicketStatus.open, 'Open'),
+                _buildFilterChip(context, TicketStatus.assign, 'Assign'),
                 _buildFilterChip(
                   context,
                   TicketStatus.inProgress,

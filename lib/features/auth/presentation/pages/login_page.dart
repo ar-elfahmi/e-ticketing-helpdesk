@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
+                              color: Colors.black.withValues(alpha: 0.08),
                               blurRadius: 28,
                               offset: const Offset(0, 12),
                             ),
@@ -93,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         'E-Ticketing',
                         style: textTheme.labelLarge?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.5,
                         ),
@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(28),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
+                              color: Colors.black.withValues(alpha: 0.08),
                               blurRadius: 36,
                               offset: const Offset(0, 18),
                             ),
@@ -137,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                                 Text(
                                   'Masuk dengan akun Anda. Gunakan user/helpdesk/admin dengan password123 untuk demo.',
                                   style: textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.textLight.withOpacity(
+                                    color: AppColors.textLight.withValues(alpha: 
                                       0.78,
                                     ),
                                     fontWeight: FontWeight.w600,
@@ -210,7 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                                   children: [
                                     Expanded(
                                       child: Divider(
-                                        color: AppColors.textLight.withOpacity(
+                                        color: AppColors.textLight.withValues(alpha: 
                                           0.18,
                                         ),
                                       ),
@@ -223,14 +223,14 @@ class _LoginPageState extends State<LoginPage> {
                                         'or',
                                         style: textTheme.bodySmall?.copyWith(
                                           color: AppColors.textLight
-                                              .withOpacity(0.55),
+                                              .withValues(alpha: 0.55),
                                           fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                     ),
                                     Expanded(
                                       child: Divider(
-                                        color: AppColors.textLight.withOpacity(
+                                        color: AppColors.textLight.withValues(alpha: 
                                           0.18,
                                         ),
                                       ),
@@ -316,7 +316,7 @@ class _LoginPageState extends State<LoginPage> {
                                     Text(
                                       'Belum punya akun?',
                                       style: textTheme.bodyMedium?.copyWith(
-                                        color: AppColors.textLight.withOpacity(
+                                        color: AppColors.textLight.withValues(alpha: 
                                           0.78,
                                         ),
                                         fontWeight: FontWeight.w600,
@@ -423,7 +423,7 @@ class _BlurCircle extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.16),
+        color: Colors.white.withValues(alpha: 0.16),
         shape: BoxShape.circle,
       ),
     );
@@ -464,11 +464,11 @@ class _StyledInput extends StatelessWidget {
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppColors.textLight.withOpacity(0.15)),
+          borderSide: BorderSide(color: AppColors.textLight.withValues(alpha: 0.15)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppColors.textLight.withOpacity(0.15)),
+          borderSide: BorderSide(color: AppColors.textLight.withValues(alpha: 0.15)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -496,7 +496,7 @@ class _SocialButton extends StatelessWidget {
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 11),
-        side: BorderSide(color: AppColors.textLight.withOpacity(0.15)),
+        side: BorderSide(color: AppColors.textLight.withValues(alpha: 0.15)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: Colors.white,
       ),

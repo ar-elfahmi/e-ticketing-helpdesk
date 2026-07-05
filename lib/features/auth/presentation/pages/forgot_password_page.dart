@@ -79,7 +79,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
+                              color: Colors.black.withValues(alpha: 0.08),
                               blurRadius: 28,
                               offset: const Offset(0, 12),
                             ),
@@ -95,7 +95,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       Text(
                         'Reset Password',
                         style: textTheme.labelLarge?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.5,
                         ),
@@ -115,7 +115,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           borderRadius: BorderRadius.circular(28),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
+                              color: Colors.black.withValues(alpha: 0.08),
                               blurRadius: 36,
                               offset: const Offset(0, 18),
                             ),
@@ -139,7 +139,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                 Text(
                                   AppStrings.forgotPasswordHint,
                                   style: textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.textLight.withOpacity(0.78),
+                                    color: AppColors.textLight.withValues(alpha: 0.78),
                                     fontWeight: FontWeight.w600,
                                     height: 1.35,
                                   ),
@@ -158,13 +158,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
                                       borderSide: BorderSide(
-                                        color: AppColors.textLight.withOpacity(0.15),
+                                        color: AppColors.textLight.withValues(alpha: 0.15),
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
                                       borderSide: BorderSide(
-                                        color: AppColors.textLight.withOpacity(0.15),
+                                        color: AppColors.textLight.withValues(alpha: 0.15),
                                       ),
                                     ),
                                     focusedBorder: OutlineInputBorder(
@@ -258,7 +258,7 @@ class _BlurCircle extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.16),
+        color: Colors.white.withValues(alpha: 0.16),
         shape: BoxShape.circle,
       ),
     );
