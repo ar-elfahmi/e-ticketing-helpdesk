@@ -33,22 +33,26 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        elevation: 0,
+        elevation: 0.5,
         color: AppColors.surfaceLight,
+        shadowColor: AppColors.primaryDark.withOpacity(0.15),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.borderLight.withOpacity(0.3), width: 1),
+        ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(48),
+          minimumSize: const Size.fromHeight(40),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
       ),
@@ -82,22 +86,26 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        elevation: 0,
+        elevation: 0.5,
         color: AppColors.surfaceDark,
+        shadowColor: AppColors.primaryDark.withOpacity(0.25),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade600, width: 1),
+        ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(48),
+          minimumSize: const Size.fromHeight(40),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
       ),
