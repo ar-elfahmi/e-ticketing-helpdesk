@@ -96,4 +96,32 @@ class DummyNotificationRepository implements NotificationRepository {
 
     _notifications[index] = _notifications[index].copyWith(isRead: true);
   }
+
+  @override
+  Future<void> createNotification(NotificationModel notification) async {
+    _notifications.insert(0, notification);
+  }
+
+  @override
+  void subscribeToRealtime(
+    String userId,
+    void Function(NotificationModel) onNotification,
+  ) {}
+
+  @override
+  void cancelRealtime() {}
+
+  @override
+  Future<List<Map<String, dynamic>>> getAdminUserIds() async {
+    return [
+      {'id': 'a1'},
+    ];
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getHelpdeskUserIds() async {
+    return [
+      {'id': 'h1'},
+    ];
+  }
 }

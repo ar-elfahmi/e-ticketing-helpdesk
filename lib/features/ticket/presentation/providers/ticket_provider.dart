@@ -228,6 +228,24 @@ class TicketProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> deleteTicket(String ticketId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    final ok = await _ticketRepository.deleteTicket(ticketId);
+
+    if (ok) {
+      _tickets.removeWhere((t) => t.id == ticketId);
+      if (_selectedTicket?.id == ticketId) {
+        _selectedTicket = null;
+      }
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return ok;
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();

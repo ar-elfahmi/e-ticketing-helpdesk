@@ -71,6 +71,7 @@ class DummyAuthRepository implements AuthRepository {
     required String email,
     required String username,
     required String password,
+    String role = 'user',
   }) async {
     await Future.delayed(const Duration(milliseconds: 900));
 
@@ -93,7 +94,7 @@ class DummyAuthRepository implements AuthRepository {
       name: name,
       email: email,
       username: username,
-      role: UserRole.user,
+      role: UserRoleX.fromString(role),
       avatarUrl: null,
     );
 

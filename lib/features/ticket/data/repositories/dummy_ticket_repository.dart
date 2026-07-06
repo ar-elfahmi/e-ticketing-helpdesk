@@ -402,4 +402,11 @@ class DummyTicketRepository implements TicketRepository {
   Future<String> uploadAttachment(Uint8List bytes, String fileName) async {
     return 'https://dummy.storage.example/$fileName';
   }
+
+  @override
+  Future<bool> deleteTicket(String ticketId) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    _tickets.removeWhere((t) => t.id == ticketId);
+    return true;
+  }
 }

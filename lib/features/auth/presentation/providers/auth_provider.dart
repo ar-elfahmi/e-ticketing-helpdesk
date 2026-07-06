@@ -52,7 +52,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> register({
+  Future<bool> registerHelpdesk({
     required String name,
     required String email,
     required String username,
@@ -67,6 +67,7 @@ class AuthProvider extends ChangeNotifier {
         email: email,
         username: username,
         password: password,
+        role: 'helpdesk',
       );
 
       if (user == null) {
@@ -77,6 +78,40 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } catch (_) {
       _errorMessage = 'Terjadi kesalahan saat mendaftar.';
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> register({
+    required String name,
+    required String email,
+    required String username,
+    required String password,
+    String role = 'user',
+  }) async {
+    _setLoading(true);
+    _errorMessage = null;
+
+    try {
+      final user = await _authRepository.register(
+        name: name,
+        email: email,
+        username: username,
+        password: password,
+        role: role,
+      );
+
+      if (user == null) {
+        _errorMessage =
+            'Registrasi gagal. Cek kembali data atau coba email lain.';
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      _errorMessage = '$e';
       return false;
     } finally {
       _setLoading(false);

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../notification/data/models/notification_model.dart';
+import '../../../notification/presentation/providers/notification_provider.dart';
 import '../../data/models/ticket_model.dart';
 import '../providers/ticket_provider.dart';
 import '../widgets/comment_bubble_widget.dart';
@@ -56,6 +59,46 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
     _commentController.clear();
   }
 
+  Future<void> _deleteTicket() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Tiket'),
+        content: const Text('Yakin ingin menghapus tiket ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true || !mounted) return;
+
+    final ok = await context.read<TicketProvider>().deleteTicket(
+      widget.ticketId,
+    );
+
+    if (!mounted) return;
+
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tiket berhasil dihapus.')),
+      );
+      Navigator.of(context).pop(true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal menghapus tiket.')),
+      );
+    }
+  }
+
   Future<void> _adminAccept() async {
     final user = context.read<AuthProvider>().currentUser;
     if (user == null) return;
@@ -66,6 +109,9 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       updatedBy: user.name,
       note: 'Tiket diterima oleh admin',
     );
+
+    _notifyStatusChange(TicketStatus.assign.value);
+    _notifyHelpdeskNewAssign();
   }
 
   Future<void> _adminUpdateStatus(TicketStatus? status) async {
@@ -79,6 +125,8 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       status: status,
       updatedBy: user.name,
     );
+
+    _notifyStatusChange(status.value);
   }
 
   Future<void> _helpdeskAccept() async {
@@ -97,6 +145,8 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       updatedBy: user.name,
       note: 'Dikerjakan oleh helpdesk',
     );
+
+    _notifyStatusChange(TicketStatus.inProgress.value);
   }
 
   Future<void> _helpdeskFinish() async {
@@ -108,6 +158,32 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       status: TicketStatus.closed,
       updatedBy: user.name,
       note: 'Tiket selesai dikerjakan',
+    );
+
+    _notifyStatusChange(TicketStatus.closed.value);
+  }
+
+  void _notifyStatusChange(String newStatus) {
+    final ticket = context.read<TicketProvider>().selectedTicket;
+    if (ticket == null) return;
+
+    context.read<NotificationProvider>().createStatusChangeNotification(
+      ticketNumber: ticket.ticketNumber,
+      newStatus: newStatus,
+      userId: ticket.reporterId,
+      ticketId: ticket.id,
+    );
+  }
+
+  void _notifyHelpdeskNewAssign() {
+    final ticket = context.read<TicketProvider>().selectedTicket;
+    if (ticket == null) return;
+
+    context.read<NotificationProvider>().createNotificationForHelpdesks(
+      title: 'Tiket Baru Siap Dikerjakan',
+      body: 'Tiket ${ticket.ticketNumber} siap dikerjakan oleh helpdesk',
+      type: NotificationType.ticket,
+      ticketId: ticket.id,
     );
   }
 
@@ -270,7 +346,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                                       .toList(),
                                   onChanged: _adminUpdateStatus,
                                 ),
-if (user?.role == UserRole.admin && ticket.status == TicketStatus.open)
+                              if (user?.role == UserRole.admin && ticket.status == TicketStatus.open)
                                 const SizedBox(height: 10),
                               if (user?.role == UserRole.admin && ticket.status == TicketStatus.open)
                                 OutlinedButton.icon(
@@ -298,9 +374,9 @@ if (user?.role == UserRole.admin && ticket.status == TicketStatus.open)
                                     ],
                                   ),
                                 ),
-                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.assign && user?.id != ticket.assigneeId)
+                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.assign)
                                 const SizedBox(height: 10),
-                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.assign && user?.id != ticket.assigneeId)
+                              if (user?.role == UserRole.helpdesk && ticket.status == TicketStatus.assign)
                                 OutlinedButton.icon(
                                   onPressed: _helpdeskAccept,
                                   icon: const Icon(Icons.assignment_turned_in_outlined),
@@ -314,6 +390,17 @@ if (user?.role == UserRole.admin && ticket.status == TicketStatus.open)
                                   icon: const Icon(Icons.check_circle_outline),
                                   label: const Text('Selesaikan Tiket'),
                                 ),
+                              if (user?.role == UserRole.admin) ...[
+                                const SizedBox(height: 16),
+                                const Divider(),
+                                const SizedBox(height: 8),
+                                OutlinedButton.icon(
+                                  onPressed: _deleteTicket,
+                                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                  label: const Text('Hapus Tiket',
+                                      style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
                             ],
                           ),
                         ),

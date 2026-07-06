@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../notification/presentation/providers/notification_provider.dart';
 import '../../data/models/ticket_model.dart';
 import '../providers/ticket_provider.dart';
 
@@ -50,6 +52,32 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
       _files.add(file);
       _bytes.add(data);
     });
+  }
+
+  Future<void> _pickFromFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'],
+      allowMultiple: true,
+    );
+    if (result == null || result.files.isEmpty) return;
+    for (final file in result.files) {
+      if (file.bytes == null) continue;
+      if (file.bytes!.length > 5 * 1024 * 1024) {
+        if (!mounted) continue;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${file.name} melebihi 5 MB. File dilewati.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        continue;
+      }
+      setState(() {
+        _files.add(XFile(file.path!));
+        _bytes.add(file.bytes!);
+      });
+    }
   }
 
   Future<void> _pickFromGallery() async {
@@ -138,6 +166,15 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
         const SnackBar(content: Text('Gagal membuat tiket. Coba lagi.')),
       );
       return;
+    }
+
+    final tickets = context.read<TicketProvider>().tickets;
+    final ticketId = tickets.isNotEmpty ? tickets.first.id : null;
+    if (ticketId != null) {
+      context.read<NotificationProvider>().createNewTicketNotification(
+        ticketId,
+        user.name,
+      );
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -237,6 +274,11 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                             icon: const Icon(Icons.photo_library_outlined),
                             label: const Text('Galeri'),
                           ),
+                          OutlinedButton.icon(
+                            onPressed: _pickFromFile,
+                            icon: const Icon(Icons.attach_file_outlined),
+                            label: const Text('File'),
+                          ),
                         ],
                       ),
                       if (_files.isNotEmpty) ...[
@@ -248,15 +290,48 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                             itemCount: _files.length,
                             separatorBuilder: (_, __) => const SizedBox(width: 8),
                             itemBuilder: (context, index) {
+                              final fileName = _files[index].name.toLowerCase();
+                              final isImage = fileName.endsWith('.jpg') ||
+                                  fileName.endsWith('.jpeg') ||
+                                  fileName.endsWith('.png') ||
+                                  fileName.endsWith('.gif') ||
+                                  fileName.endsWith('.webp');
                               return Stack(
                                 children: [
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
-                                    child: Image.memory(
-                                      _bytes[index],
+                                    child: SizedBox(
                                       width: 100,
                                       height: 100,
-                                      fit: BoxFit.cover,
+                                      child: isImage
+                                          ? Image.memory(
+                                              _bytes[index],
+                                              width: 100,
+                                              height: 100,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : Container(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerHighest,
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  const Icon(Icons.description_outlined,
+                                                      size: 32),
+                                                  const SizedBox(height: 4),
+                                                  Padding(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                                    child: Text(
+                                                      fileName.split('.').last.toUpperCase(),
+                                                      style: const TextStyle(fontSize: 10),
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                     ),
                                   ),
                                   Positioned(

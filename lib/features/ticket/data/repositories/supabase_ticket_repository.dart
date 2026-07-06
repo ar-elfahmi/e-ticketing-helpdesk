@@ -25,6 +25,8 @@ class SupabaseTicketRepository implements TicketRepository {
     final searchQuery = query;
     var q = _supabase.from('tickets').select('*');
 
+    q = q.isFilter('deleted_at', null);
+
     if (status != null) {
       q = q.eq('status', status.value);
     }
@@ -53,6 +55,7 @@ class SupabaseTicketRepository implements TicketRepository {
         .from('tickets')
         .select('*')
         .eq('id', ticketId)
+        .isFilter('deleted_at', null)
         .maybeSingle();
 
     if (response == null) return null;
@@ -223,8 +226,30 @@ class SupabaseTicketRepository implements TicketRepository {
         return 'image/webp';
       case 'pdf':
         return 'application/pdf';
+      case 'doc':
+        return 'application/msword';
+      case 'docx':
+        return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      case 'xls':
+        return 'application/vnd.ms-excel';
+      case 'xlsx':
+        return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
       default:
         return 'application/octet-stream';
     }
   }
+
+  @override
+  Future<bool> deleteTicket(String ticketId) async {
+    try {
+      await _supabase
+          .from('tickets')
+          .update({'deleted_at': DateTime.now().toIso8601String()})
+          .eq('id', ticketId);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
 }

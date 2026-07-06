@@ -5,6 +5,7 @@ import 'core/constants/app_strings.dart';
 import 'core/services/navigation_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
+import 'features/auth/presentation/pages/admin_manage_users_page.dart';
 import 'features/auth/presentation/pages/forgot_password_page.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
@@ -43,6 +44,7 @@ class App extends StatelessWidget {
             AppRoutes.createTicket: (_) => const CreateTicketPage(),
             AppRoutes.notification: (_) => const NotificationPage(),
             AppRoutes.profile: (_) => const ProfilePage(),
+            AppRoutes.adminManageUsers: (_) => const AdminManageUsersPage(),
           },
           onGenerateRoute: _onGenerateRoute,
         );

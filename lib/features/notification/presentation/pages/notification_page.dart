@@ -28,6 +28,9 @@ class _NotificationPageState extends State<NotificationPage> {
     await context.read<NotificationProvider>().fetchNotifications(
       userId: userId,
     );
+    if (userId != null) {
+      context.read<NotificationProvider>().subscribeToRealtime(userId);
+    }
   }
 
   @override

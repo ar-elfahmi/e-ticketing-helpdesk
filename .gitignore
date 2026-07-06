@@ -31,3 +31,6 @@ gen_l10n/
 
 # OS
 .DS_Store
+
+#Ai
+.claude

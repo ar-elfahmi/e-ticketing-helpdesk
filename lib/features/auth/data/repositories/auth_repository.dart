@@ -10,6 +10,7 @@ abstract class AuthRepository {
     required String email,
     required String username,
     required String password,
+    String role = 'user',
   });
 
   Future<UserModel?> getCurrentUser();

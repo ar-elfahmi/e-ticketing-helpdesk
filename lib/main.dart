@@ -9,7 +9,7 @@ import 'features/auth/data/repositories/supabase_auth_repository.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/dashboard/data/repositories/dummy_dashboard_repository.dart';
 import 'features/dashboard/presentation/providers/dashboard_provider.dart';
-import 'features/notification/data/repositories/dummy_notification_repository.dart';
+import 'features/notification/data/repositories/supabase_notification_repository.dart';
 import 'features/notification/presentation/providers/notification_provider.dart';
 import 'features/profile/data/repositories/dummy_profile_repository.dart';
 import 'features/profile/presentation/providers/profile_provider.dart';
@@ -26,7 +26,7 @@ void main() async {
   final dashboardRepository = DummyDashboardRepository(
     ticketRepository: ticketRepository,
   );
-  final notificationRepository = DummyNotificationRepository();
+  final notificationRepository = SupabaseNotificationRepository();
   final profileRepository = DummyProfileRepository(
     authRepository: dummyAuthRepository,
   );

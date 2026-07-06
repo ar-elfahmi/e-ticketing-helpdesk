@@ -75,10 +75,21 @@ class NotificationModel {
       'title': title,
       'body': body,
       'type': type.value,
-      'isRead': isRead,
-      'createdAt': createdAt.toIso8601String(),
-      'ticketId': ticketId,
-      'userId': userId,
+      'is_read': isRead,
+      'created_at': createdAt.toIso8601String(),
+      'ticket_id': ticketId,
+      'user_id': userId,
+    };
+  }
+
+  Map<String, dynamic> toInsertMap() {
+    return {
+      'title': title,
+      'body': body,
+      'type': type.value,
+      'is_read': isRead,
+      'ticket_id': ticketId,
+      'user_id': userId,
     };
   }
 
@@ -88,10 +99,12 @@ class NotificationModel {
       title: map['title'] as String,
       body: map['body'] as String,
       type: NotificationTypeX.fromString(map['type'] as String),
-      isRead: map['isRead'] as bool,
-      createdAt: DateTime.parse(map['createdAt'] as String),
-      ticketId: map['ticketId'] as String?,
-      userId: map['userId'] as String?,
+      isRead: (map['is_read'] ?? map['isRead'] ?? false) as bool,
+      createdAt: DateTime.parse(
+        (map['created_at'] ?? map['createdAt']) as String,
+      ),
+      ticketId: (map['ticket_id'] ?? map['ticketId']) as String?,
+      userId: (map['user_id'] ?? map['userId']) as String?,
     );
   }
 

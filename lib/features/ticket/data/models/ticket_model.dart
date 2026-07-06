@@ -149,6 +149,7 @@ class TicketModel {
     this.assigneeId,
     this.attachments = const [],
     this.history = const [],
+    this.deletedAt,
   });
 
   final String id;
@@ -164,6 +165,7 @@ class TicketModel {
   final String? assigneeId;
   final List<String> attachments;
   final List<StatusHistory> history;
+  final DateTime? deletedAt;
 
   TicketModel copyWith({
     String? id,
@@ -179,6 +181,7 @@ class TicketModel {
     String? assigneeId,
     List<String>? attachments,
     List<StatusHistory>? history,
+    DateTime? deletedAt,
   }) {
     return TicketModel(
       id: id ?? this.id,
@@ -194,6 +197,7 @@ class TicketModel {
       assigneeId: assigneeId ?? this.assigneeId,
       attachments: attachments ?? this.attachments,
       history: history ?? this.history,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
@@ -212,6 +216,7 @@ class TicketModel {
       'assigneeId': assigneeId,
       'attachments': attachments,
       'history': history.map((item) => item.toMap()).toList(),
+      'deleted_at': deletedAt?.toIso8601String(),
     };
   }
 
@@ -238,6 +243,9 @@ class TicketModel {
       history: (map['history'] as List<dynamic>? ?? [])
           .map((item) => StatusHistory.fromMap(item as Map<String, dynamic>))
           .toList(),
+      deletedAt: map['deleted_at'] != null
+          ? DateTime.parse(map['deleted_at'] as String)
+          : null,
     );
   }
 

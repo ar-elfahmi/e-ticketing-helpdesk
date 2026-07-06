@@ -127,6 +127,14 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             },
           ),
+          if (authUser?.role == UserRole.admin)
+            ProfileMenuItem(
+              title: 'Kelola User',
+              icon: Icons.people_outline,
+              onTap: () {
+                Navigator.of(context).pushNamed(AppRoutes.adminManageUsers);
+              },
+            ),
           ProfileMenuItem(
             title: 'Dark Mode',
             icon: Icons.dark_mode_outlined,

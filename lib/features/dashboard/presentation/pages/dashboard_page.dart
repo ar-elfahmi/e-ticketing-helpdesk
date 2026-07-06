@@ -40,6 +40,10 @@ class _DashboardPageState extends State<DashboardPage> {
         userId: authUser?.id,
       ),
     ]);
+
+    if (authUser?.id != null) {
+      context.read<NotificationProvider>().subscribeToRealtime(authUser!.id);
+    }
   }
 
   @override

@@ -29,4 +29,5 @@ class AppRoutes {
   static const String createTicket = '/tickets/create';
   static const String notification = '/notifications';
   static const String profile = '/profile';
+  static const String adminManageUsers = '/admin/manage-users';
 }

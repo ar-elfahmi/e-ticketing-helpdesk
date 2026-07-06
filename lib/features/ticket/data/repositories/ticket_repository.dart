@@ -46,4 +46,6 @@ abstract class TicketRepository {
   Future<List<CommentModel>> getComments(String ticketId);
 
   Future<String> uploadAttachment(Uint8List bytes, String fileName);
+
+  Future<bool> deleteTicket(String ticketId);
 }

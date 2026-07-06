@@ -49,25 +49,22 @@ class SupabaseAuthRepository implements AuthRepository {
     required String email,
     required String username,
     required String password,
+    String role = 'user',
   }) async {
-    try {
-      final response = await _supabase.auth.signUp(
-        email: email,
-        password: password,
-        data: {
-          'name': name,
-          'username': username,
-          'role': 'user',
-        },
-      );
+    final response = await _supabase.auth.signUp(
+      email: email,
+      password: password,
+      data: {
+        'name': name,
+        'username': username,
+        'role': role,
+      },
+    );
 
-      final user = response.user;
-      if (user == null) return null;
+    final user = response.user;
+    if (user == null) return null;
 
-      return _getProfile(user.id);
-    } catch (e) {
-      return null;
-    }
+    return _getProfile(user.id);
   }
 
   @override

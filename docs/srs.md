@@ -296,5 +296,31 @@ Aplikasi Mobile (Praktikum) – DIV Teknik Informatika Universitas Airlangga
 5.12 Setting Screen.
 5.13 Dark & light mode.
 
+## lainya:
+logic bisnis status:
+1. user simpan, otomatis tersimpan dengan status open
+2. ⁠ketika admin menerima ubah menjadi assign
+3. ⁠ketika tiket dengan status assign di pilih helpdesk, maka status otomatis berubah menjadi on progress (helpdesk hanya bisa menerima yang status=assign)
+4. ⁠kelika selesai mengerjakan, helpdesk klik selesai atau finish update statusnya berubah menjadi close
+
+##Q&A
+Register helpdesk: Apakah siapa saja boleh register sebagai helpdesk? Atau hanya admin yang bisa membuat akun helpdesk?
+Hanya admin yang bisa buat
+
+Forgot password: Apakah cukup gunakan fitur bawaan Supabase Auth yang kirim link reset via email? Atau mau custom kode OTP (6 digit) yang dikirim email?
+Gunakan Supabase Auth
+
+Notifikasi: Apakah notifikasi cukup in-app saja (di halaman notifikasi), atau juga dikirim via email?
+In-app saja dengan detail notifikasi:
+admin: tiket baru
+user: status tiket berubah
+helpdesk: tiket baru status assign
+
+Upload file: Apakah perlu batasan ukuran file? Berapa maksimal?
+Maks 5 MB
+
+Delete ticket: Hard delete (hapus permanen) atau soft delete (ubah status jadi 'deleted' atau arsipkan)?
+Soft delete
+
 &lt;page_number&gt;9&lt;/page_number&gt;
 Aplikasi Mobile (Praktikum) – DIV Teknik Informatika Universitas Airlangga
