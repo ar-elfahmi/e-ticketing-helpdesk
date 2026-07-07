@@ -10,11 +10,19 @@ class AuthProvider extends ChangeNotifier {
   final AuthRepository _authRepository;
 
   UserModel? _currentUser;
+  List<UserModel> _users = [];
+  List<UserModel> _deletedUsers = [];
   bool _isLoading = false;
+  bool _isLoadingUsers = false;
+  bool _isLoadingDeletedUsers = false;
   String? _errorMessage;
 
   UserModel? get currentUser => _currentUser;
+  List<UserModel> get users => _users;
+  List<UserModel> get deletedUsers => _deletedUsers;
   bool get isLoading => _isLoading;
+  bool get isLoadingUsers => _isLoadingUsers;
+  bool get isLoadingDeletedUsers => _isLoadingDeletedUsers;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _currentUser != null;
 
@@ -78,6 +86,66 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } catch (_) {
       _errorMessage = 'Terjadi kesalahan saat mendaftar.';
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> deleteUser(String userId) async {
+    final currentUser = _currentUser;
+    if (currentUser == null) {
+      _errorMessage = 'Sesi admin tidak ditemukan.';
+      notifyListeners();
+      return false;
+    }
+
+    if (currentUser.id == userId) {
+      _errorMessage = 'Tidak bisa menghapus akun sendiri.';
+      notifyListeners();
+      return false;
+    }
+
+    _setLoading(true);
+    _errorMessage = null;
+
+    try {
+      final ok = await _authRepository.deleteUser(
+        userId: userId,
+        deletedBy: currentUser.id,
+      );
+
+      if (!ok) {
+        _errorMessage = 'Gagal menghapus user.';
+        return false;
+      }
+
+      await Future.wait([fetchUsers(), fetchDeletedUsers()]);
+      return true;
+    } catch (_) {
+      _errorMessage = 'Gagal menghapus user.';
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> restoreUser(String userId) async {
+    _setLoading(true);
+    _errorMessage = null;
+
+    try {
+      final ok = await _authRepository.restoreUser(userId);
+
+      if (!ok) {
+        _errorMessage = 'Gagal memulihkan user.';
+        return false;
+      }
+
+      await Future.wait([fetchUsers(), fetchDeletedUsers()]);
+      return true;
+    } catch (_) {
+      _errorMessage = 'Gagal memulihkan user.';
       return false;
     } finally {
       _setLoading(false);
@@ -149,5 +217,41 @@ class AuthProvider extends ChangeNotifier {
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
+  }
+
+  Future<void> fetchUsers() async {
+    if (_isLoadingUsers) {
+      return;
+    }
+
+    _isLoadingUsers = true;
+    notifyListeners();
+
+    try {
+      _users = await _authRepository.getUsers();
+    } catch (_) {
+      _errorMessage = 'Gagal memuat daftar user.';
+    } finally {
+      _isLoadingUsers = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchDeletedUsers() async {
+    if (_isLoadingDeletedUsers) {
+      return;
+    }
+
+    _isLoadingDeletedUsers = true;
+    notifyListeners();
+
+    try {
+      _deletedUsers = await _authRepository.getDeletedUsers();
+    } catch (_) {
+      _errorMessage = 'Gagal memuat user terhapus.';
+    } finally {
+      _isLoadingDeletedUsers = false;
+      notifyListeners();
+    }
   }
 }

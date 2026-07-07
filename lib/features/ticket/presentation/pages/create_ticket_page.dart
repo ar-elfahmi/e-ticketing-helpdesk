@@ -171,7 +171,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
     final tickets = context.read<TicketProvider>().tickets;
     final ticketId = tickets.isNotEmpty ? tickets.first.id : null;
     if (ticketId != null) {
-      context.read<NotificationProvider>().createNewTicketNotification(
+      await context.read<NotificationProvider>().createNewTicketNotification(
         ticketId,
         user.name,
       );

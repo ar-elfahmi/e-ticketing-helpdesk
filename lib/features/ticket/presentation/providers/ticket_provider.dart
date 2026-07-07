@@ -207,6 +207,20 @@ class TicketProvider extends ChangeNotifier {
     await fetchTickets(refresh: true, reporterId: _lastReporterId);
   }
 
+  Future<List<TicketModel>> fetchTicketsForAdmin({
+    TicketStatus? status,
+    String query = '',
+    int page = 1,
+    int limit = 10,
+  }) {
+    return _ticketRepository.getTickets(
+      status: status,
+      query: query,
+      page: page,
+      limit: limit,
+    );
+  }
+
   void _replaceTicket(TicketModel ticket) {
     final index = _tickets.indexWhere((item) => item.id == ticket.id);
     if (index < 0) {

@@ -11,6 +11,8 @@ class DummyAuthRepository implements AuthRepository {
         username: 'user',
         role: UserRole.user,
         avatarUrl: null,
+        deletedAt: null,
+        deletedBy: null,
       ),
       const UserModel(
         id: 'h1',
@@ -19,6 +21,8 @@ class DummyAuthRepository implements AuthRepository {
         username: 'helpdesk',
         role: UserRole.helpdesk,
         avatarUrl: null,
+        deletedAt: null,
+        deletedBy: null,
       ),
       const UserModel(
         id: 'a1',
@@ -27,6 +31,8 @@ class DummyAuthRepository implements AuthRepository {
         username: 'admin',
         role: UserRole.admin,
         avatarUrl: null,
+        deletedAt: null,
+        deletedBy: null,
       ),
     ]);
 
@@ -42,11 +48,72 @@ class DummyAuthRepository implements AuthRepository {
   UserModel? _currentUser;
 
   @override
+  Future<List<UserModel>> getUsers() async {
+    await Future.delayed(const Duration(milliseconds: 250));
+    return List<UserModel>.unmodifiable(
+      _users.where((user) => user.deletedAt == null),
+    );
+  }
+
+  @override
+  Future<List<UserModel>> getDeletedUsers() async {
+    await Future.delayed(const Duration(milliseconds: 250));
+    return List<UserModel>.unmodifiable(
+      _users.where((user) => user.deletedAt != null),
+    );
+  }
+
+  @override
+  Future<bool> deleteUser({
+    required String userId,
+    required String deletedBy,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 700));
+
+    final index = _users.indexWhere((item) => item.id == userId);
+    if (index < 0) {
+      return false;
+    }
+
+    final user = _users[index];
+    if (user.deletedAt != null) {
+      return false;
+    }
+
+    _users[index] = user.copyWith(
+      deletedAt: DateTime.now(),
+      deletedBy: deletedBy,
+    );
+    return true;
+  }
+
+  @override
+  Future<bool> restoreUser(String userId) async {
+    await Future.delayed(const Duration(milliseconds: 700));
+
+    final index = _users.indexWhere((item) => item.id == userId);
+    if (index < 0) {
+      return false;
+    }
+
+    final user = _users[index];
+    if (user.deletedAt == null) {
+      return false;
+    }
+
+    _users[index] = user.copyWith(
+      deletedAt: null,
+      deletedBy: null,
+    );
+    return true;
+  }
+
+  @override
   Future<UserModel?> login(String username, String password) async {
     await Future.delayed(const Duration(milliseconds: 900));
 
     final user = _users.where((item) => item.username == username).firstOrNull;
-    if (user == null) {
+    if (user == null || user.deletedAt != null) {
       return null;
     }
 
@@ -107,7 +174,12 @@ class DummyAuthRepository implements AuthRepository {
   @override
   Future<UserModel?> getCurrentUser() async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return _currentUser;
+    final currentUser = _currentUser;
+    if (currentUser == null || currentUser.deletedAt != null) {
+      return null;
+    }
+
+    return currentUser;
   }
 
   @override

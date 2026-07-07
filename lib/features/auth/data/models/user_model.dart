@@ -45,6 +45,8 @@ class UserModel {
     required this.username,
     required this.role,
     this.avatarUrl,
+    this.deletedAt,
+    this.deletedBy,
   });
 
   final String id;
@@ -53,6 +55,8 @@ class UserModel {
   final String username;
   final UserRole role;
   final String? avatarUrl;
+  final DateTime? deletedAt;
+  final String? deletedBy;
 
   UserModel copyWith({
     String? id,
@@ -61,6 +65,8 @@ class UserModel {
     String? username,
     UserRole? role,
     String? avatarUrl,
+    DateTime? deletedAt,
+    String? deletedBy,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -69,6 +75,8 @@ class UserModel {
       username: username ?? this.username,
       role: role ?? this.role,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deletedBy: deletedBy ?? this.deletedBy,
     );
   }
 
@@ -80,6 +88,8 @@ class UserModel {
       'username': username,
       'role': role.value,
       'avatarUrl': avatarUrl,
+      'deleted_at': deletedAt?.toIso8601String(),
+      'deleted_by': deletedBy,
     };
   }
 
@@ -91,6 +101,10 @@ class UserModel {
       username: map['username'] as String,
       role: UserRoleX.fromString(map['role'] as String),
       avatarUrl: (map['avatar_url'] ?? map['avatarUrl']) as String?,
+      deletedAt: map['deleted_at'] != null
+          ? DateTime.parse(map['deleted_at'].toString())
+          : null,
+      deletedBy: map['deleted_by'] as String?,
     );
   }
 

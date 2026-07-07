@@ -11,6 +11,66 @@ class SupabaseAuthRepository implements AuthRepository {
   late final SupabaseClient _supabase;
 
   @override
+  Future<List<UserModel>> getUsers() async {
+    final response = await _supabase.from('profiles').select('*').order(
+      'name',
+      ascending: true,
+    );
+
+    return (response as List)
+        .map((item) => UserModel.fromMap(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<List<UserModel>> getDeletedUsers() async {
+    final response = await _supabase
+        .from('profiles')
+        .select('*')
+        .not('deleted_at', 'is', null)
+        .order('name', ascending: true);
+
+    return (response as List)
+        .map((item) => UserModel.fromMap(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<bool> deleteUser({
+    required String userId,
+    required String deletedBy,
+  }) async {
+    try {
+      await _supabase
+          .from('profiles')
+          .update({
+            'deleted_at': DateTime.now().toIso8601String(),
+            'deleted_by': deletedBy,
+          })
+          .eq('id', userId);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> restoreUser(String userId) async {
+    try {
+      await _supabase
+          .from('profiles')
+          .update({
+            'deleted_at': null,
+            'deleted_by': null,
+          })
+          .eq('id', userId);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
   Future<UserModel?> login(String username, String password) async {
     final isEmail = username.contains('@');
 
@@ -108,6 +168,7 @@ class SupabaseAuthRepository implements AuthRepository {
         .from('profiles')
         .select()
         .eq('id', userId)
+        .isFilter('deleted_at', null)
         .maybeSingle();
 
     if (profile == null) return null;

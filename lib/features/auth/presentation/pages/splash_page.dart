@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../providers/auth_provider.dart';
 
@@ -62,7 +63,7 @@ class _SplashPageState extends State<SplashPage>
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0B6BCB), Color(0xFF18A999)],
+            colors: [AppColors.authGradientStart, AppColors.authGradientEnd],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

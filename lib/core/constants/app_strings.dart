@@ -30,4 +30,5 @@ class AppRoutes {
   static const String notification = '/notifications';
   static const String profile = '/profile';
   static const String adminManageUsers = '/admin/manage-users';
+  static const String adminManageTickets = '/admin/manage-tickets';
 }

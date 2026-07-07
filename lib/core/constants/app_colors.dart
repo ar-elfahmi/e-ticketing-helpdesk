@@ -8,6 +8,11 @@ class AppColors {
   static const Color primaryDark = Color(0xFF2F4530); // Deep Forest Green
   static const Color primaryLight = Color(0xFF3E5A37); // Forest Green Dark
   static const Color secondary = Color(0xFFE9C97B); // Golden Warm accent
+  static const Color authGradientStart = primaryDark;
+  static const Color authGradientEnd = primary;
+  static const Color authGlowDark = Color(0x332F4530);
+  static const Color authGlowPrimary = Color(0x335C7A52);
+  static const Color authGlowAccent = Color(0x33E9C97B);
 
   // Semantic colors
   static const Color success = Color(0xFF22C55E);

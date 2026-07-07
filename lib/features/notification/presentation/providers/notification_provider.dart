@@ -12,6 +12,7 @@ class NotificationProvider extends ChangeNotifier {
   List<NotificationModel> _notifications = [];
   bool _isLoading = false;
   String? _currentUserId;
+  String? _subscribedUserId;
 
   List<NotificationModel> get notifications => _notifications;
   bool get isLoading => _isLoading;
@@ -88,8 +89,12 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   void subscribeToRealtime(String userId) {
-    if (_currentUserId == userId) return;
+    if (_subscribedUserId == userId) return;
+
+    _notificationRepository.cancelRealtime();
     _currentUserId = userId;
+    _subscribedUserId = userId;
+
     _notificationRepository.subscribeToRealtime(userId, (notif) {
       _currentUserId = userId;
       final exists = _notifications.any((n) => n.id == notif.id);
@@ -101,7 +106,9 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   Future<void> createNewTicketNotification(
-      String ticketId, String reporterName) async {
+    String ticketId,
+    String reporterName,
+  ) async {
     await createNotificationForAdmins(
       title: 'Tiket Baru',
       body: 'Tiket baru dari $reporterName',
@@ -116,13 +123,25 @@ class NotificationProvider extends ChangeNotifier {
     required String userId,
     required String ticketId,
   }) async {
-    await createNotification(
-      title: 'Status Tiket Berubah',
-      body: 'Tiket $ticketNumber berubah menjadi $newStatus',
-      type: NotificationType.ticket,
-      ticketId: ticketId,
-      userId: userId,
-    );
+    final targetUserIds = <String>{userId};
+    final adminIds = await _notificationRepository.getAdminUserIds();
+
+    for (final admin in adminIds) {
+      final adminId = admin['id'] as String?;
+      if (adminId != null && adminId.isNotEmpty) {
+        targetUserIds.add(adminId);
+      }
+    }
+
+    for (final targetUserId in targetUserIds) {
+      await createNotification(
+        title: 'Status Tiket Berubah',
+        body: 'Tiket $ticketNumber berubah menjadi $newStatus',
+        type: NotificationType.ticket,
+        ticketId: ticketId,
+        userId: targetUserId,
+      );
+    }
   }
 
   Future<void> createNotificationForHelpdesks({
@@ -155,5 +174,11 @@ class NotificationProvider extends ChangeNotifier {
       ticketId: ticketId,
       userId: assigneeId,
     );
+  }
+
+  @override
+  void dispose() {
+    _notificationRepository.cancelRealtime();
+    super.dispose();
   }
 }

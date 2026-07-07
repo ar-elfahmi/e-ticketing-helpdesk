@@ -14,6 +14,7 @@ import 'features/dashboard/presentation/pages/app_shell_page.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'features/notification/presentation/pages/notification_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
+import 'features/ticket/presentation/pages/admin_manage_tickets_page.dart';
 import 'features/ticket/presentation/pages/create_ticket_page.dart';
 import 'features/ticket/presentation/pages/ticket_detail_page.dart';
 import 'features/ticket/presentation/pages/ticket_list_page.dart';
@@ -45,6 +46,7 @@ class App extends StatelessWidget {
             AppRoutes.notification: (_) => const NotificationPage(),
             AppRoutes.profile: (_) => const ProfilePage(),
             AppRoutes.adminManageUsers: (_) => const AdminManageUsersPage(),
+            AppRoutes.adminManageTickets: (_) => const AdminManageTicketsPage(),
           },
           onGenerateRoute: _onGenerateRoute,
         );

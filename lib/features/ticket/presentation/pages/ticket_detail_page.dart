@@ -110,8 +110,8 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       note: 'Tiket diterima oleh admin',
     );
 
-    _notifyStatusChange(TicketStatus.assign.value);
-    _notifyHelpdeskNewAssign();
+    await _notifyStatusChange(TicketStatus.assign.value);
+    await _notifyHelpdeskNewAssign();
   }
 
   Future<void> _adminUpdateStatus(TicketStatus? status) async {
@@ -126,7 +126,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       updatedBy: user.name,
     );
 
-    _notifyStatusChange(status.value);
+    await _notifyStatusChange(status.value);
   }
 
   Future<void> _helpdeskAccept() async {
@@ -146,7 +146,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       note: 'Dikerjakan oleh helpdesk',
     );
 
-    _notifyStatusChange(TicketStatus.inProgress.value);
+    await _notifyStatusChange(TicketStatus.inProgress.value);
   }
 
   Future<void> _helpdeskFinish() async {
@@ -160,14 +160,14 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       note: 'Tiket selesai dikerjakan',
     );
 
-    _notifyStatusChange(TicketStatus.closed.value);
+    await _notifyStatusChange(TicketStatus.closed.value);
   }
 
-  void _notifyStatusChange(String newStatus) {
+  Future<void> _notifyStatusChange(String newStatus) {
     final ticket = context.read<TicketProvider>().selectedTicket;
-    if (ticket == null) return;
+    if (ticket == null) return Future.value();
 
-    context.read<NotificationProvider>().createStatusChangeNotification(
+    return context.read<NotificationProvider>().createStatusChangeNotification(
       ticketNumber: ticket.ticketNumber,
       newStatus: newStatus,
       userId: ticket.reporterId,
@@ -175,11 +175,11 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
     );
   }
 
-  void _notifyHelpdeskNewAssign() {
+  Future<void> _notifyHelpdeskNewAssign() {
     final ticket = context.read<TicketProvider>().selectedTicket;
-    if (ticket == null) return;
+    if (ticket == null) return Future.value();
 
-    context.read<NotificationProvider>().createNotificationForHelpdesks(
+    return context.read<NotificationProvider>().createNotificationForHelpdesks(
       title: 'Tiket Baru Siap Dikerjakan',
       body: 'Tiket ${ticket.ticketNumber} siap dikerjakan oleh helpdesk',
       type: NotificationType.ticket,

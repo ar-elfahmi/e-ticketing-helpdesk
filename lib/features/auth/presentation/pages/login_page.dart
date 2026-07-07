@@ -394,16 +394,28 @@ class _LoginHeaderBand extends StatelessWidget {
         child: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF0B6BCB), Color(0xFF3092ED)],
+              colors: [AppColors.authGradientStart, AppColors.authGradientEnd],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
           ),
           child: Stack(
             children: [
-              Positioned(left: -28, top: 18, child: _BlurCircle(size: 130)),
-              Positioned(right: 22, top: -34, child: _BlurCircle(size: 122)),
-              Positioned(right: -34, bottom: 18, child: _BlurCircle(size: 145)),
+              Positioned(
+                left: -28,
+                top: 18,
+                child: _BlurCircle(size: 130, color: AppColors.authGlowPrimary),
+              ),
+              Positioned(
+                right: 22,
+                top: -34,
+                child: _BlurCircle(size: 122, color: AppColors.authGlowAccent),
+              ),
+              Positioned(
+                right: -34,
+                bottom: 18,
+                child: _BlurCircle(size: 145, color: AppColors.authGlowDark),
+              ),
             ],
           ),
         ),
@@ -413,9 +425,10 @@ class _LoginHeaderBand extends StatelessWidget {
 }
 
 class _BlurCircle extends StatelessWidget {
-  const _BlurCircle({required this.size});
+  const _BlurCircle({required this.size, required this.color});
 
   final double size;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -423,7 +436,7 @@ class _BlurCircle extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.16),
+        color: color,
         shape: BoxShape.circle,
       ),
     );

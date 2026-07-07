@@ -109,6 +109,14 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           const SizedBox(height: 12),
+          Text(
+            'Akun',
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
           ProfileMenuItem(
             title: 'Edit Profil',
             icon: Icons.edit_outlined,
@@ -127,12 +135,29 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             },
           ),
+          const SizedBox(height: 12),
+          Text(
+            'Pengaturan',
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
           if (authUser?.role == UserRole.admin)
             ProfileMenuItem(
-              title: 'Kelola User',
+              title: 'Admin: Kelola User',
               icon: Icons.people_outline,
               onTap: () {
                 Navigator.of(context).pushNamed(AppRoutes.adminManageUsers);
+              },
+            ),
+          if (authUser?.role == UserRole.admin)
+            ProfileMenuItem(
+              title: 'Admin: Kelola Tiket',
+              icon: Icons.confirmation_number_outlined,
+              onTap: () {
+                Navigator.of(context).pushNamed(AppRoutes.adminManageTickets);
               },
             ),
           ProfileMenuItem(
@@ -143,6 +168,15 @@ class _ProfilePageState extends State<ProfilePage> {
               onChanged: themeProvider.toggleTheme,
             ),
           ),
+          const SizedBox(height: 12),
+          Text(
+            'Info',
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
           ProfileMenuItem(
             title: 'Tentang Aplikasi',
             icon: Icons.info_outline,
