@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/user_model.dart';
@@ -9,6 +10,8 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   late final SupabaseClient _supabase;
+  bool _needsEmailVerification = false;
+  bool get needsEmailVerification => _needsEmailVerification;
 
   @override
   Future<List<UserModel>> getUsers() async {
@@ -36,20 +39,24 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<bool> deleteUser({
+  Future<bool> deactivateUser({
     required String userId,
     required String deletedBy,
   }) async {
     try {
-      await _supabase
+      final updated = await _supabase
           .from('profiles')
           .update({
             'deleted_at': DateTime.now().toIso8601String(),
             'deleted_by': deletedBy,
           })
-          .eq('id', userId);
-      return true;
-    } catch (_) {
+          .eq('id', userId)
+          .select('*')
+          .maybeSingle();
+
+      return updated != null;
+    } catch (e) {
+      debugPrint('DEBUG: SupabaseAuthRepository.deactivateUser error: $e');
       return false;
     }
   }
@@ -57,15 +64,19 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<bool> restoreUser(String userId) async {
     try {
-      await _supabase
+      final updated = await _supabase
           .from('profiles')
           .update({
             'deleted_at': null,
             'deleted_by': null,
           })
-          .eq('id', userId);
-      return true;
-    } catch (_) {
+          .eq('id', userId)
+          .select('*')
+          .maybeSingle();
+
+      return updated != null;
+    } catch (e) {
+      debugPrint('DEBUG: SupabaseAuthRepository.restoreUser error: $e');
       return false;
     }
   }
@@ -124,7 +135,27 @@ class SupabaseAuthRepository implements AuthRepository {
     final user = response.user;
     if (user == null) return null;
 
-    return _getProfile(user.id);
+    _needsEmailVerification = response.session == null;
+
+    try {
+      final profile = await _getProfile(user.id);
+      if (profile != null) {
+        return profile;
+      }
+    } catch (_) {
+      // Ignored: profile might not be created or accessible yet (e.g. if email confirmation is required)
+    }
+
+    return UserModel(
+      id: user.id,
+      name: name,
+      email: email,
+      username: username,
+      role: UserRoleX.fromString(role),
+      avatarUrl: null,
+      deletedAt: null,
+      deletedBy: null,
+    );
   }
 
   @override
@@ -141,26 +172,32 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<bool> resetPassword(String emailOrUsername) async {
+  Future<bool> updatePassword(String newPassword) async {
     try {
-      final isEmail = emailOrUsername.contains('@');
-
-      String email;
-      if (isEmail) {
-        email = emailOrUsername;
-      } else {
-        final result = await _supabase.rpc('get_email_by_username', params: {
-          'lookup_username': emailOrUsername,
-        });
-        if (result == null || result == '') return false;
-        email = result as String;
-      }
-
-      await _supabase.auth.resetPasswordForEmail(email);
+      await _supabase.auth.updateUser(UserAttributes(password: newPassword));
       return true;
     } catch (_) {
       return false;
     }
+  }
+
+  @override
+  Future<bool> resetPassword(String emailOrUsername) async {
+    final isEmail = emailOrUsername.contains('@');
+
+    String email;
+    if (isEmail) {
+      email = emailOrUsername;
+    } else {
+      final result = await _supabase.rpc('get_email_by_username', params: {
+        'lookup_username': emailOrUsername,
+      });
+      if (result == null || result == '') return false;
+      email = result as String;
+    }
+
+    await _supabase.auth.resetPasswordForEmail(email);
+    return true;
   }
 
   Future<UserModel?> _getProfile(String userId) async {

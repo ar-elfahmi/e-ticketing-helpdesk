@@ -5,7 +5,7 @@ abstract class AuthRepository {
 
   Future<List<UserModel>> getDeletedUsers();
 
-  Future<bool> deleteUser({
+  Future<bool> deactivateUser({
     required String userId,
     required String deletedBy,
   });
@@ -27,4 +27,6 @@ abstract class AuthRepository {
   Future<UserModel?> getCurrentUser();
 
   Future<bool> resetPassword(String emailOrUsername);
+
+  Future<bool> updatePassword(String newPassword);
 }

@@ -69,11 +69,11 @@ class _AdminManageUsersPageState extends State<AdminManageUsersPage> {
     await context.read<AuthProvider>().fetchUsers();
   }
 
-  Future<void> _deleteUser(UserModel user) async {
+  Future<void> _deactivateUser(UserModel user) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Hapus user?'),
+        title: const Text('Nonaktifkan user?'),
         content: Text(
           'User ${user.name} akan dinonaktifkan dan tidak akan tampil di daftar aktif.',
         ),
@@ -84,7 +84,7 @@ class _AdminManageUsersPageState extends State<AdminManageUsersPage> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Hapus'),
+            child: const Text('Nonaktifkan'),
           ),
         ],
       ),
@@ -94,18 +94,19 @@ class _AdminManageUsersPageState extends State<AdminManageUsersPage> {
       return;
     }
 
-    final ok = await context.read<AuthProvider>().deleteUser(user.id);
+    final ok = await context.read<AuthProvider>().deactivateUser(user.id);
     if (!mounted) return;
 
     if (!ok) {
+      final errorMsg = context.read<AuthProvider>().errorMessage;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal menghapus user.')),
+        SnackBar(content: Text(errorMsg ?? 'Gagal menonaktifkan user.')),
       );
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${user.name} berhasil dihapus.')),
+      SnackBar(content: Text('${user.name} berhasil dinonaktifkan.')),
     );
   }
 
@@ -138,8 +139,9 @@ class _AdminManageUsersPageState extends State<AdminManageUsersPage> {
     if (!mounted) return;
 
     if (!ok) {
+      final errorMsg = context.read<AuthProvider>().errorMessage;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal memulihkan user.')),
+        SnackBar(content: Text(errorMsg ?? 'Gagal memulihkan user.')),
       );
       return;
     }
@@ -284,11 +286,11 @@ class _AdminManageUsersPageState extends State<AdminManageUsersPage> {
                         Chip(label: Text(_roleLabel(user.role))),
                         const SizedBox(width: 8),
                         IconButton(
-                          tooltip: 'Hapus user',
+                          tooltip: 'Nonaktifkan user',
                           onPressed: currentUser?.id == user.id
                               ? null
-                              : () => _deleteUser(user),
-                          icon: const Icon(Icons.delete_outline),
+                              : () => _deactivateUser(user),
+                          icon: const Icon(Icons.person_off_outlined),
                         ),
                       ],
                     ),

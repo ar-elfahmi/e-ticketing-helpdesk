@@ -64,7 +64,7 @@ class DummyAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<bool> deleteUser({
+  Future<bool> deactivateUser({
     required String userId,
     required String deletedBy,
   }) async {
@@ -180,6 +180,16 @@ class DummyAuthRepository implements AuthRepository {
     }
 
     return currentUser;
+  }
+
+  @override
+  Future<bool> updatePassword(String newPassword) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (_currentUser == null) {
+      return false;
+    }
+    _passwords[_currentUser!.username] = newPassword;
+    return true;
   }
 
   @override

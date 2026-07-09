@@ -156,9 +156,9 @@ Mengambil semua profil aktif dari tabel `profiles` dan mengurutkannya berdasarka
 
 Mengambil profil yang sudah soft delete dari `profiles` dengan filter `deleted_at != null`.
 
-### `deleteUser(userId, deletedBy)`
+### `deactivateUser(userId, deletedBy)`
 
-Melakukan soft delete pada `profiles` dengan mengisi `deleted_at` dan `deleted_by`.
+Melakukan soft delete (nonaktifkan) pada `profiles` dengan mengisi `deleted_at` dan `deleted_by`.
 
 ### `restoreUser(userId)`
 

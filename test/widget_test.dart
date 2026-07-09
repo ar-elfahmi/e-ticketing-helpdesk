@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 import 'package:e_ticketing_helpdesk/app.dart';
+import 'package:e_ticketing_helpdesk/core/constants/app_strings.dart';
 import 'package:e_ticketing_helpdesk/core/theme/theme_provider.dart';
 import 'package:e_ticketing_helpdesk/features/auth/data/repositories/dummy_auth_repository.dart';
 import 'package:e_ticketing_helpdesk/features/auth/presentation/providers/auth_provider.dart';
@@ -50,14 +51,14 @@ void main() {
                 ProfileProvider(profileRepository: profileRepository),
           ),
         ],
-        child: const App(),
+        child: const App(initialRoute: AppRoutes.splash),
       ),
     );
 
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
 
-    expect(find.text('Selamat datang'), findsOneWidget);
+    expect(find.text('Welcome Back'), findsOneWidget);
     expect(find.text('Masuk'), findsAtLeastNWidgets(1));
   });
 }

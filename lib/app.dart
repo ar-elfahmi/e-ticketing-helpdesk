@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/constants/app_strings.dart';
 import 'core/services/navigation_service.dart';
@@ -9,7 +12,9 @@ import 'features/auth/presentation/pages/admin_manage_users_page.dart';
 import 'features/auth/presentation/pages/forgot_password_page.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
+import 'features/auth/presentation/pages/reset_password_page.dart';
 import 'features/auth/presentation/pages/splash_page.dart';
+import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/dashboard/presentation/pages/app_shell_page.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'features/notification/presentation/pages/notification_page.dart';
@@ -19,8 +24,47 @@ import 'features/ticket/presentation/pages/create_ticket_page.dart';
 import 'features/ticket/presentation/pages/ticket_detail_page.dart';
 import 'features/ticket/presentation/pages/ticket_list_page.dart';
 
-class App extends StatelessWidget {
-  const App({super.key});
+class App extends StatefulWidget {
+  const App({super.key, required this.initialRoute});
+
+  final String initialRoute;
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  StreamSubscription<AuthState>? _authStateSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    try {
+      _authStateSubscription = Supabase.instance.client.auth.onAuthStateChange
+          .listen((data) {
+            if (!mounted) {
+              return;
+            }
+
+            if (data.event == AuthChangeEvent.passwordRecovery) {
+              context.read<AuthProvider>().setRecoveryFlow();
+              NavigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                AppRoutes.resetPassword,
+                (route) => false,
+              );
+            }
+          });
+    } catch (_) {
+      // Supabase is not initialized (e.g. in widget tests), ignore auth state listener
+    }
+  }
+
+  @override
+  void dispose() {
+    _authStateSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +77,13 @@ class App extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: themeProvider.themeMode,
-          initialRoute: AppRoutes.splash,
+          initialRoute: widget.initialRoute,
           routes: {
             AppRoutes.splash: (_) => const SplashPage(),
             AppRoutes.login: (_) => const LoginPage(),
             AppRoutes.register: (_) => const RegisterPage(),
             AppRoutes.forgotPassword: (_) => const ForgotPasswordPage(),
+            AppRoutes.resetPassword: (_) => const ResetPasswordPage(),
             AppRoutes.shell: (_) => const AppShellPage(),
             AppRoutes.dashboard: (_) => const DashboardPage(),
             AppRoutes.ticketList: (_) => const TicketListPage(),

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -28,21 +31,58 @@ class _SplashPageState extends State<SplashPage>
 
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
+    _listenForRecovery();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _bootstrap();
     });
   }
 
+  StreamSubscription<AuthState>? _recoverySub;
+
+  void _listenForRecovery() {
+    try {
+      _recoverySub = Supabase.instance.client.auth.onAuthStateChange.listen(
+        (data) {
+          if (data.event == AuthChangeEvent.passwordRecovery) {
+            if (context.mounted) {
+              context.read<AuthProvider>().setRecoveryFlow();
+              Navigator.of(context).pushReplacementNamed(
+                AppRoutes.resetPassword,
+              );
+            }
+          }
+        },
+      );
+    } catch (_) {
+      // Supabase is not initialized (e.g. in widget tests), ignore recovery listener
+    }
+  }
+
   Future<void> _bootstrap() async {
+    if (_isRecoveryUri(Uri.base)) {
+      if (!mounted) return;
+      context.read<AuthProvider>().setRecoveryFlow();
+      Navigator.of(context).pushReplacementNamed(AppRoutes.resetPassword);
+      return;
+    }
+
     await Future.delayed(const Duration(seconds: 2));
-    if (!mounted) {
+    if (!mounted) return;
+
+    if (_isRecoveryUri(Uri.base)) {
+      context.read<AuthProvider>().setRecoveryFlow();
+      Navigator.of(context).pushReplacementNamed(AppRoutes.resetPassword);
       return;
     }
 
     final authProvider = context.read<AuthProvider>();
     await authProvider.bootstrap();
 
-    if (!mounted) {
+    if (!mounted) return;
+
+    if (_isRecoveryUri(Uri.base) || authProvider.isRecoveryFlow) {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.resetPassword);
       return;
     }
 
@@ -51,8 +91,31 @@ class _SplashPageState extends State<SplashPage>
     );
   }
 
+  bool _isRecoveryUri(Uri uri) {
+    if (uri.pathSegments.contains('reset-password')) {
+      return true;
+    }
+
+    if (uri.queryParameters['type'] == 'recovery' ||
+        uri.queryParameters.containsKey('access_token') ||
+        uri.queryParameters.containsKey('refresh_token')) {
+      return true;
+    }
+
+    final fragment = uri.fragment;
+    if (fragment.contains('reset-password') ||
+        fragment.contains('type=recovery') ||
+        fragment.contains('access_token=') ||
+        fragment.contains('refresh_token=')) {
+      return true;
+    }
+
+    return false;
+  }
+
   @override
   void dispose() {
+    _recoverySub?.cancel();
     _controller.dispose();
     super.dispose();
   }

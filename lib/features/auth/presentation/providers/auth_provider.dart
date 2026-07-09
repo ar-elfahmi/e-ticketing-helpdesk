@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../data/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../data/repositories/supabase_auth_repository.dart';
 
 class AuthProvider extends ChangeNotifier {
   AuthProvider({required AuthRepository authRepository})
@@ -24,7 +26,22 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoadingUsers => _isLoadingUsers;
   bool get isLoadingDeletedUsers => _isLoadingDeletedUsers;
   String? get errorMessage => _errorMessage;
+  String? _successMessage;
+  String? get successMessage => _successMessage;
   bool get isAuthenticated => _currentUser != null;
+
+  bool _isRecoveryFlow = false;
+  bool get isRecoveryFlow => _isRecoveryFlow;
+
+  void setRecoveryFlow() {
+    _isRecoveryFlow = true;
+    notifyListeners();
+  }
+
+  void clearRecoveryFlow() {
+    _isRecoveryFlow = false;
+    notifyListeners();
+  }
 
   Future<void> bootstrap() async {
     _setLoading(true);
@@ -92,7 +109,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteUser(String userId) async {
+  Future<bool> deactivateUser(String userId) async {
     final currentUser = _currentUser;
     if (currentUser == null) {
       _errorMessage = 'Sesi admin tidak ditemukan.';
@@ -101,7 +118,7 @@ class AuthProvider extends ChangeNotifier {
     }
 
     if (currentUser.id == userId) {
-      _errorMessage = 'Tidak bisa menghapus akun sendiri.';
+      _errorMessage = 'Tidak bisa menonaktifkan akun sendiri.';
       notifyListeners();
       return false;
     }
@@ -110,20 +127,21 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = null;
 
     try {
-      final ok = await _authRepository.deleteUser(
+      final ok = await _authRepository.deactivateUser(
         userId: userId,
         deletedBy: currentUser.id,
       );
 
       if (!ok) {
-        _errorMessage = 'Gagal menghapus user.';
+        _errorMessage = 'Gagal menonaktifkan user (tidak ada baris diperbarui).';
         return false;
       }
 
       await Future.wait([fetchUsers(), fetchDeletedUsers()]);
       return true;
-    } catch (_) {
-      _errorMessage = 'Gagal menghapus user.';
+    } catch (e) {
+      debugPrint('DEBUG: AuthProvider.deactivateUser error: $e');
+      _errorMessage = 'Gagal menonaktifkan user: $e';
       return false;
     } finally {
       _setLoading(false);
@@ -138,14 +156,15 @@ class AuthProvider extends ChangeNotifier {
       final ok = await _authRepository.restoreUser(userId);
 
       if (!ok) {
-        _errorMessage = 'Gagal memulihkan user.';
+        _errorMessage = 'Gagal memulihkan user (tidak ada baris diperbarui).';
         return false;
       }
 
       await Future.wait([fetchUsers(), fetchDeletedUsers()]);
       return true;
-    } catch (_) {
-      _errorMessage = 'Gagal memulihkan user.';
+    } catch (e) {
+      debugPrint('DEBUG: AuthProvider.restoreUser error: $e');
+      _errorMessage = 'Gagal memulihkan user: $e';
       return false;
     } finally {
       _setLoading(false);
@@ -161,6 +180,7 @@ class AuthProvider extends ChangeNotifier {
   }) async {
     _setLoading(true);
     _errorMessage = null;
+    _successMessage = null;
 
     try {
       final user = await _authRepository.register(
@@ -177,9 +197,26 @@ class AuthProvider extends ChangeNotifier {
         return false;
       }
 
+      if (_authRepository is SupabaseAuthRepository &&
+          _authRepository.needsEmailVerification) {
+        _successMessage =
+            'Registrasi berhasil. Link verifikasi telah dikirim ke email Anda. Silakan verifikasi sebelum login.';
+      } else {
+        _successMessage = 'Registrasi berhasil. Silakan login.';
+      }
+
       return true;
-    } catch (e) {
-      _errorMessage = '$e';
+    } on AuthException catch (e) {
+      if (e.message.contains('User already registered') ||
+          e.message.contains('email already exists') ||
+          e.message.contains('Email already in use')) {
+        _errorMessage = 'Email sudah terdaftar. Gunakan email lain.';
+      } else {
+        _errorMessage = e.message;
+      }
+      return false;
+    } catch (_) {
+      _errorMessage = 'Terjadi kesalahan saat mendaftar.';
       return false;
     } finally {
       _setLoading(false);
@@ -192,6 +229,13 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       return await _authRepository.resetPassword(emailOrUsername);
+    } on AuthException catch (e) {
+      if (e.statusCode == '429') {
+        _errorMessage = 'Terlalu banyak permintaan. Silakan coba beberapa saat lagi.';
+      } else {
+        _errorMessage = 'Gagal mengirim email reset: ${e.message}';
+      }
+      return false;
     } catch (_) {
       _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
       return false;
@@ -207,8 +251,23 @@ class AuthProvider extends ChangeNotifier {
     try {
       await _authRepository.logout();
       _currentUser = null;
+      _isRecoveryFlow = false;
     } catch (_) {
       _errorMessage = 'Gagal logout.';
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> updatePassword(String newPassword) async {
+    _setLoading(true);
+    _errorMessage = null;
+
+    try {
+      return await _authRepository.updatePassword(newPassword);
+    } catch (_) {
+      _errorMessage = 'Gagal memperbarui password.';
+      return false;
     } finally {
       _setLoading(false);
     }

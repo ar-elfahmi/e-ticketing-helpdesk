@@ -12,6 +12,19 @@ class AppStrings {
   static const String forgotPasswordNotFound =
       'Email atau username tidak ditemukan.';
   static const String resetPassword = 'Reset Password';
+    static const String resetPasswordTitle = 'Buat Password Baru';
+    static const String resetPasswordHint =
+      'Masukkan password baru untuk akun Anda.';
+    static const String resetPasswordSuccess =
+      'Password berhasil diperbarui. Silakan login kembali.';
+    static const String resetPasswordInvalidLink =
+      'Link reset password tidak valid atau sudah kedaluwarsa.';
+    static const String newPassword = 'Password Baru';
+    static const String confirmNewPassword = 'Konfirmasi Password Baru';
+    static const String newPasswordMinLength =
+      'Password minimal 8 karakter.';
+    static const String newPasswordMismatch =
+      'Konfirmasi password tidak cocok.';
   static const String sendResetLink = 'Kirim Tautan Reset';
 }
 
@@ -22,6 +35,7 @@ class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
   static const String shell = '/shell';
   static const String dashboard = '/dashboard';
   static const String ticketList = '/tickets';
